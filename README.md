@@ -9,6 +9,10 @@ This project provisions a Redis environment on AWS using Terraform. It creates t
 
 The Redis Master-Replica replication is configured, allowing the client to read/write data and verify replication.
 
+## Architecture Diagram
+
+Architecture Diagram.png
+
 ---
 
 ## Infrastructure Details
