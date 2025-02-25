@@ -11,7 +11,7 @@ The Redis Master-Replica replication is configured, allowing the client to read/
 
 ## Architecture Diagram
 
-Architecture Diagram.png
+![Redis Architecture](Architecture Diagram.png)
 
 ---
 
