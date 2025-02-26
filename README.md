@@ -7,7 +7,7 @@ This project provisions a Redis environment on AWS using Terraform. It creates t
 - **VM2**: Redis Replica (Slave) Node
 - **VM3**: Redis Client Node
 
-The Redis Master-Replica replication is configured, allowing the client to read/write data and verify replication.
+The Redis Master-Replica replication is configured with authentication and data persistence enabled. The client connects securely using private IPs.
 
 ## Architecture Diagram
 
@@ -34,7 +34,7 @@ The Redis Master-Replica replication is configured, allowing the client to read/
 
 ## Prerequisites
 
-- Terraform Installed ([Terraform Installation Guide](https://learn.hashicorp.com/tutorials/terraform/install-cli))
+- Terraform Installed
 - AWS CLI Configured with appropriate credentials
 - SSH Key Pair (Ensure the path in `aws_key_pair` matches your environment)
 
@@ -75,24 +75,27 @@ The Redis Master-Replica replication is configured, allowing the client to read/
    sudo passwd redis
    ```
 
-3. **Configure Redis for Replication**
+3. **Configure Redis for Replication and Security**
    - Edit `/etc/redis/redis.conf`:
      ```bash
      sudo nano /etc/redis/redis.conf
      ```
-     - Change:
+     - Change or add:
        ```
        bind 0.0.0.0
-       protected-mode no
+       protected-mode yes
+       requirepass <REDIS_PASSWORD>
+       masterauth <REDIS_PASSWORD> (On Replica)
+       appendonly yes
        ```
    - Restart Redis:
      ```bash
      sudo systemctl restart redis-server
      ```
 
-4. **Set Up Replica on VM2**
+4. **Set Up Replica on VM2 Using Private IP**
    ```bash
-   redis-cli replicaof <VM1_MASTER_IP> 6379
+   redis-cli -h <VM2_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> replicaof <VM1_PRIVATE_IP> 6379
    ```
 
 ---
@@ -102,22 +105,22 @@ The Redis Master-Replica replication is configured, allowing the client to read/
 1. **Check Replication Status**
    On **Master (VM1)**:
    ```bash
-   redis-cli -h <MASTER_IP> -p 6379 INFO replication
+   redis-cli -h <MASTER_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> INFO replication
    ```
 
    On **Replica (VM2)**:
    ```bash
-   redis-cli -h <REPLICA_IP> -p 6379 INFO replication
+   redis-cli -h <REPLICA_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> INFO replication
    ```
 
 2. **Test Data Replication**
    - Set a key on Master:
      ```bash
-     redis-cli -h <MASTER_IP> -p 6379 set interview redis
+     redis-cli -h <MASTER_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> set setup redis
      ```
    - Get the key from Replica:
      ```bash
-     redis-cli -h <REPLICA_IP> -p 6379 get interview
+     redis-cli -h <REPLICA_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> get setup
      ```
 
 ---
@@ -126,6 +129,15 @@ The Redis Master-Replica replication is configured, allowing the client to read/
 
 - **Redis VM IPs**: Public IP addresses of the Redis instances.
 - **SSH Commands**: Ready-to-use SSH commands to access each VM.
+
+---
+
+## Client Connection
+
+To connect from the client node securely using private IP:
+```bash
+redis-cli -h <MASTER_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD>
+```
 
 ---
 
@@ -139,10 +151,12 @@ terraform destroy -auto-approve
 ---
 
 ## Notes
-- Ensure that `redis.conf` changes are applied before setting up replication.
-- For production, consider private subnets, stronger security rules, and Redis authentication.
+- Redis authentication is enabled using `requirepass` and `masterauth`.
+- Append-only file (AOF) is enabled for data persistence.
+- Private IPs are used for inter-server communication for enhanced security.
 
 ---
 
 **End of README**
+
 
