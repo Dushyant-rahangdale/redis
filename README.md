@@ -69,13 +69,7 @@ The Redis Master-Replica replication is configured with authentication and data 
    ssh -i /path/to/id_rsa ubuntu@<PUBLIC_IP>
    ```
 
-2. **Change Redis User Shell and Password**
-   ```bash
-   sudo usermod -s /bin/bash redis
-   sudo passwd redis
-   ```
-
-3. **Configure Redis for Replication and Security**
+2. **Configure Redis for Replication and Security**
    - Edit `/etc/redis/redis.conf`:
      ```bash
      sudo nano /etc/redis/redis.conf
@@ -93,7 +87,7 @@ The Redis Master-Replica replication is configured with authentication and data 
      sudo systemctl restart redis-server
      ```
 
-4. **Set Up Replica on VM2 Using Private IP**
+3. **Set Up Replica on VM2 Using Private IP**
    ```bash
    redis-cli -h <VM2_PRIVATE_IP> -p 6379 -a <REDIS_PASSWORD> replicaof <VM1_PRIVATE_IP> 6379
    ```
