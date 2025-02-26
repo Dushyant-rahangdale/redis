@@ -34,10 +34,6 @@ ping <MASTER_IP>
 ```bash
 telnet <MASTER_IP> 6379
 ```
-If `telnet` is not installed:
-```bash
-nc -zv <MASTER_IP> 6379
-```
 
 ### 📡 **Check Listening Ports with `ss` Command**
 The `ss` command shows which ports Redis is listening on:
@@ -66,7 +62,7 @@ sudo nano /etc/redis/redis.conf
 ### 🔧 **Key Changes:**
 ```ini
 bind 0.0.0.0
-protected-mode no
+protected-mode no (Initail setup)
 ```
 
 ### 🔄 **Restart Redis After Changes:**
@@ -165,9 +161,6 @@ By following these troubleshooting steps, you should be able to:
 - Ensure proper Redis configuration for external connections.
 - Set up and verify successful Redis replication.
 
-If issues persist, ensure cloud provider settings (such as AWS Security Groups) and local firewalls are correctly configured. Additionally.
-
 ---
 
-💡 **Tip:** For a production environment, ensure you configure proper authentication and IP restrictions to secure your Redis instances.
 
